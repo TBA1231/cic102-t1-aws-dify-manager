@@ -2,8 +2,8 @@ from typing import Annotated
 from datetime import date
 from fastapi import Depends,FastAPI, HTTPException
 from fastapi.security import APIKeyHeader 
+from services.bill import Bill 
 
-import services 
 import boto3
 
 from config.config import config
@@ -28,6 +28,8 @@ async def read_root(
     if key != config["auth_key"]:
         raise HTTPException(status_code=403) 
 
-    rsp = get_billing_info(client, start_date, end_date)
+    bill = Bill(client)
+
+    rsp = bill.get_billing_info(client, start_date, end_date)
 
     return rsp
