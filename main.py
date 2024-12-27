@@ -30,6 +30,6 @@ async def read_root(
 
     bill = Bill(client)
 
-    rsp = bill.get_billing_info(client, start_date, end_date)
+    rsp = bill.get_billing_info(start_date, end_date)
 
-    return rsp
+    return rsp["ResultsByTime"]
