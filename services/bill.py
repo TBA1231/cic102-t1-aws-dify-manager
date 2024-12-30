@@ -7,8 +7,8 @@ class Bill:
         try:
             response = self.client.get_cost_and_usage(
                 TimePeriod={
-                    'Start': start_date.strftime("%Y-%m-%d"),
-                    'End': end_date.strftime("%Y-%m-%d"),
+                    'Start': start_date,
+                    'End': end_date,
                 },
                 Granularity=granularity,
                 Metrics=["UnblendedCost", "UsageQuantity"],

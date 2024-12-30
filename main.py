@@ -1,6 +1,5 @@
-from typing import Annotated
-from datetime import date
-from fastapi import Depends,FastAPI, HTTPException
+from typing import Union 
+from fastapi import FastAPI, HTTPException
 from fastapi.security import APIKeyHeader 
 from services.bill import Bill 
 
@@ -21,9 +20,9 @@ client = boto3.client(
 
 @app.get("/bills")
 async def read_root(
-    key: Annotated[str, Depends(header_schema)],
-    start_date: Annotated[date, "searching start date"],
-    end_date: Annotated[date, "searching start date"],
+    key: str,
+    start_date: str,
+    end_date: str,
 ):
     if key != config["auth_key"]:
         raise HTTPException(status_code=403) 
