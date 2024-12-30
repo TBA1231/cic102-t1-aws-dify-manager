@@ -1,5 +1,5 @@
 from typing import Union 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import APIKeyHeader 
 from services.bill import Bill 
 
@@ -20,9 +20,9 @@ client = boto3.client(
 
 @app.get("/bills")
 async def read_root(
-    key: str,
-    start_date: str,
-    end_date: str,
+    key: str = Depends(header_schema),
+    start_date: str = "",
+    end_date: str = "",
 ):
     if key != config["auth_key"]:
         raise HTTPException(status_code=403) 
