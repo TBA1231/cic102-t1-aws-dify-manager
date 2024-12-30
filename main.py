@@ -7,7 +7,12 @@ import boto3
 
 from config.config import config
 
-app = FastAPI()
+app = FastAPI(
+    servers=[
+        {"url": "http://localhost:8000/"},
+        {"url": "https://hpuy2z372d.ap-south-1.awsapprunner.com/"},
+    ],
+)
 
 header_schema = APIKeyHeader(name="x-key")
 
