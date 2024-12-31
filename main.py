@@ -63,8 +63,8 @@ async def read_root(
         raise HTTPException(status_code=403) 
 
     cloudwatch = Cloudwatch(ec2_client, cloudwatch_client)
-    instances = cloudwatch.get_ec2_info()['Reservations'][0]['Instances']
+    instances = cloudwatch.get_ec2_info()['Reservations'][0]['Instances'][0]['InstanceId']
     rsp = []
     for instance in instances:
-        rsp.append({'instance Id': instance["InstanceId"], 'CPU Usage': cloudwatch.get_ec2_cpu_usage(instance["InstanceId"], start_date, end_date)['Messages'][0]['Value']})
+        rsp.append({'instance Id': instance, 'CPU Usage': cloudwatch.get_ec2_cpu_usage(instance, start_date, end_date)['MetricDataResults'][0]['Values'][0]})
     return rsp
