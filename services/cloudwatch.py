@@ -15,34 +15,22 @@ class Cloudwatch:
     def get_ec2_cpu_usage(self, instance_id, start_date, end_date):
         instance_id = "i-05380600ada372b26"
         try:
-            response = self.cloudwatch_client.get_metric_data(
-                MetricDataQueries=[
+            response = self.cloudwatch_client.get_metric_statistics(
+                Namespace= 'EC2',
+                MetricName= 'CPUUtilization',
+                Dimensions=[
                     {
-                        'Id': "m1",
-                        'MetricStat': {
-                            'Metric': {
-                                'Namespace': 'EC2',
-                                'MetricName': 'CPUUtilization',
-                                'Dimensions': [
-                                    {
-                                        'Name': 'instanceId',
-                                        'Value': instance_id
-                                    }
-                                ]
-                            },
-                            'Period': 3600,
-                            'Stat': 'Average',
-                            'Unit': 'Percent'
-                        },
-                        'Label': instance_id
-                    }
+                        'Name': 'instanceId',
+                        'Value': instance_id
+                    },
                 ],
                 StartTime=start_date,
                 EndTime=end_date,
-                LabelOptions={
-                    'Timezone': '+0800'
-                }
+                Period= 3600,
+                Statistics=['Average'],
+                Unit= 'Percent'
             )
+
             print(response)
             return response
         except Exception as e:
