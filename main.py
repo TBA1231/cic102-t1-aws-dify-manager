@@ -2,6 +2,7 @@ from typing import Union
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import APIKeyHeader 
 from services.bill import Bill 
+from services.cloudwatch import Cloudwatch
 
 import boto3
 
@@ -37,3 +38,20 @@ async def read_root(
     rsp = bill.get_billing_info(start_date, end_date)
 
     return rsp["ResultsByTime"]
+
+@app.get("/cpu_usage")
+async def read_root(
+    key: str = Depends(header_schema),
+    start_date: str = "",
+    end_date: str = "",
+):
+    if key != config["auth_key"]:
+        raise HTTPException(status_code=403) 
+
+    cloudwatch = Cloudwatch(client)
+    instance_Ids = cloudwatch.get_ec2_info()['Reservations']['Instances']['InstanceId']
+    rsp = []
+    for instance_Id in instance_Ids:
+        rsp.append({'instance Id': instance_Id, 'CPU Usage': cloudwatch.get_ec2_cpu_usage(instance_Id, start_date, end_date)['Messages']['Value']})
+    return rsp
+
