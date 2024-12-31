@@ -66,7 +66,5 @@ async def read_root(
     instances = cloudwatch.get_ec2_info()['Reservations'][0]['Instances']
     rsp = []
     for instance in instances:
-        print(cloudwatch.get_ec2_cpu_usage(instance["InstanceId"], start_date, end_date))
-        # rsp.append({'instance Id': instance["InstanceId"], 'CPU Usage': cloudwatch.get_ec2_cpu_usage(instance["InstanceId"], start_date, end_date)['Messages']['Value']})
+        rsp.append({'instance Id': instance["InstanceId"], 'CPU Usage': cloudwatch.get_ec2_cpu_usage(instance["InstanceId"], start_date, end_date)['Messages'][0]['Value']})
     return rsp
-
