@@ -53,6 +53,71 @@ async def read_root(
 
     return rsp["ResultsByTime"]
 
+@app.get("/usage")
+async def read_root(
+    key: str = Depends(header_schema),
+    start_date: str = "",
+    end_date: str = "",
+):
+    if key != config["auth_key"]:
+        raise HTTPException(status_code=403)
+
+    cloudwatch = Cloudwatch(ec2_client, cloudwatch_client)
+
+    metrics = cloudwatch.list_all_metrics()
+
+    check_namespaces = [
+        'AWS/NATGateway',
+        'AWS/Usage',
+        'AWS/EC2',
+        'AWS/AppRunner',
+        'AWS/ApplicationELB'
+    ]
+
+    check_metrics = [
+        'CallCount',
+        'CPUSurplusCreditBalance',
+        'Requests',
+        'CPUUtilization',
+        'NetworkIn',
+        'MemoryUtilization',
+        'RequestCount',
+        '2xxStatusResponses',
+        'NetworkPacketsOut',
+        'CPUCreditUsage',
+        'CPUCreditBalance',
+        'NetworkOut',
+        'CPUSurplusCreditsCharged',
+        'NetworkPacketsIn',
+        'HTTPCode_Target_2XX_Count',
+        'RequestCountPerTarget',
+        'ActiveInstances',
+        'NewConnectionCount'
+    ]
+
+    search_metrics = []
+    for metric in metrics :
+        if metric["Namespace"] not in check_namespaces or metric["MetricName"] not in check_metrics:
+            continue
+
+        search_metrics.append(metric)
+
+    data = cloudwatch.get_metric_data(
+        search_metrics,
+        start_date,
+        end_date
+    )
+
+    rsp = []
+    for item in data["MetricDataResults"]:
+        rsp.append(dict(
+            Label = item["Label"],
+            Timestamps = item["Timestamps"],
+            Values = item["Values"],
+        ))
+
+    return rsp
+
 @app.get("/cpu_usage")
 async def read_root(
     key: str = Depends(header_schema),

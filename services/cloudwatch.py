@@ -35,3 +35,38 @@ class Cloudwatch:
             return response
         except Exception as e:
             print(f"Error occurred: {e}")
+
+    def list_all_metrics(self):
+        metrics = []
+        paginator = self.cloudwatch_client.get_paginator('list_metrics')
+        for page in paginator.paginate():
+            metrics.extend(page['Metrics'])
+        return metrics
+
+    def get_metric_data(self, metrics, start_time, end_time):
+        MetricDataQueries = []
+
+        i = 0
+        for metric in metrics:
+            MetricDataQueries.append({
+                'Id': str('m1_' + str(i)),
+                'MetricStat': {
+                    'Metric': {
+                        'Namespace': metric["Namespace"],
+                        'MetricName': metric["MetricName"],
+                        'Dimensions': metric.get('Dimensions', [])
+                    },
+                    'Period': 86400,
+                    'Stat': 'Sum'
+                },
+                'ReturnData': True
+            })
+            i += 1
+
+        response = self.cloudwatch_client.get_metric_data(
+            MetricDataQueries=MetricDataQueries,
+            StartTime=start_time,
+            EndTime=end_time
+        )
+
+        return response
